@@ -9,6 +9,7 @@ from threading import Lock
 from queue import Queue
 import gtsam
 import numpy as np
+from sympy import true
 from camera import Camera
 from visualizer import *
 from typing import Optional, List, Dict
@@ -108,8 +109,12 @@ class DataManager(metaclass=singleton):
                 print("[SLAM] Data Manager: invalid config key given")
         self.mutex.release()
 
-    def draw_features(self,cam,features,color, size=10, thickness=10):
+    def draw_features(self,cam,features,color, size=11, thickness=1):
 
         # TODO in a separate thread
 
         self.output.imgs[cam] = self.visualizer.draw_features(self.output.imgs[cam], features, color, size, thickness)
+
+        if True:
+            cv2.imshow("image:", self.output.imgs[cam])
+            cv2.waitKey()

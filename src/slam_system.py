@@ -46,7 +46,7 @@ class SLAMSystem:
         self.load_config_from_object(config)
 
         self.tracker = Tracker()
-        self.localMapper = LocalMapper()
+        #self.localMapper = LocalMapper()
 
         # self.t_mapping = Thread(target=self.localMapper.run)
         # self.t_mapping = multiprocessing.Process(target=self.localMapper.run)
@@ -73,14 +73,17 @@ class SLAMSystem:
         imu_params = gtsam.PreintegrationParams.MakeSharedU(
             0
         )  # gravity along negative z axis
+        
         imu_params.setAccelerometerCovariance(
-            0.001 * np.eye(3)
+             2.0000e-3 * np.eye(3)
         )  # acc white noise in continuous
+       
         imu_params.setIntegrationCovariance(
-            1e-7 * np.eye(3)
+            1e-7 * np. eye(3)
         )  # integration uncertainty continuous
+        
         imu_params.setGyroscopeCovariance(
-            0.0001 * np.eye(3)
+            1.6968e-04 * np.eye(3)
         )  # gyro white noise in continuous
         # imu_params.setOmegaCoriolis(w_coriolis)
         self.data_manager.update_config(imu_params=imu_params)

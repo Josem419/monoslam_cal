@@ -45,7 +45,6 @@ class State(Enum):
     RUNNING = 3
     LOST = 4
 
-
 class Tracker:
 
     def __init__(self) -> None:
@@ -61,7 +60,7 @@ class Tracker:
         self.previous_timestamp: Optional[float] = None
 
         self.optimizer = Optimizer()
-
+        self.loops = 0
         # Settings to be transferred to data_manager from config file:
         self.settings = {
             "init_min_desc_distance": 300,
@@ -132,7 +131,7 @@ class Tracker:
                 self.refMultiKeyframe = self.currentMultiframe
 
             elif init_return == 0:
-                self.reset()
+                #self.reset()
                 return None
 
         elif self.state is State.RUNNING:
@@ -530,7 +529,7 @@ class Tracker:
                     for idx in associated_frame_features_idx[cam]
                 ]
             )
-            # Reproject info image
+            # Reproject into image
             uv_curr_reproj, valid = camera.projectPoints(
                 np.array([mapPoint.cartesian for mapPoint in associated_mappoints]),
                 self.currentMultiframe.T_origin2body_estimated,
@@ -704,6 +703,11 @@ class Tracker:
                     },
                 )
 
+                print(matches)
+                print(uv_init)
+                print(uv_curr)
+                print(xyz_point)
+
                 camera = self.data_manager.config.cameras[cam]
 
                 all_matches[cam] = matches  # list(compress(all_matches[cam], correct))
@@ -712,7 +716,7 @@ class Tracker:
                 draw_features = []
                 for i in range(len(xyz_point)):
                     # og_index = og_indexing[i]
-                    covariance = np.diag([5, 5, 10])  # TODO
+                    covariance = np.diag([0.1, 0.1, 0.1])  # TODO
                     ptMap = MapPoint(xyz_point[i], covariance)
                     ptMap.addObservation(
                         cam,
@@ -762,6 +766,11 @@ class Tracker:
 
         # print("Ground plane projection: {:.1f} ms".format((time.time() - t1) * 1000))
 
+        # if this is only the first frame, then i should return without
+        if self.loops == 0:
+            self.loops = self.loops + 1
+            return 0
+
         # TODO data sharing through data_manager
         data = {}
         data["MFs"] = [self.initMultiframe, self.currentMultiframe]
@@ -785,8 +794,4 @@ class Tracker:
         either by calculating projection vectors of mid-edges and corners of one image, and seeing if it projects into the other image
         should return a mask in both image frames, and should be done once on startup or calibration update
         """
-        pass
-
-    def run(self):
-
         pass
