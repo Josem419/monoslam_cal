@@ -80,3 +80,4 @@ Pattern Recognition, pages 593–600, 1994. 3
 [15] Pangolin: https://github.com/stevenlovegrove/Pangolin
 [16] TwitchSlam: https://github.com/geohot/twitchslam 
 [17] PySlam: https://github.com/luigifreda/pyslam 
+[18] OpenCV: https://opencv.org/ 
