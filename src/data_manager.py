@@ -38,11 +38,9 @@ class SLAMData:
         self.process_queue = Queue()
         self.local_mapping_proc: bool = False
         self.MKFs = []  # MultiKeyFrames
+        self.points = []  # list of map points
         self.currentMap = None
         self.accumulated_imus = []
-
-        # TODO: Move MKFs and accumulated imus to map
-
 
 class SLAMOutput:
 
