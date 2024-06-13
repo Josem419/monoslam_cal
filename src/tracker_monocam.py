@@ -45,7 +45,11 @@ class State(Enum):
     RUNNING = 3
     LOST = 4
 
-class Tracker:
+
+class TrackerMonocular:
+    """
+    This tracker implementation is for monocular camera-only SLAM
+    """
 
     def __init__(self) -> None:
         # grab the singleton to share data
@@ -53,6 +57,7 @@ class Tracker:
         self.state = State.NOT_INITIALIZED
 
         self.currentMultiframe: Optional[MultiFrame] = None
+
         self.lastMultiframe: Optional[MultiFrame] = None
         self.initMultiframe: Optional[MultiFrame] = None
         self.refMultiKeyframe: Optional[MultiFrame] = None
@@ -76,13 +81,7 @@ class Tracker:
             "tracking_outlier_reproj_thresh": 7,
         }  # outlier reprojection error threshold
 
-    def track(
-        self,
-        timestamp: float,
-        imgs: List[np.ndarray],
-        accumulated_imu: List[List[Union[float, np.ndarray, np.ndarray]]],
-        interpolated_vals,
-    ):
+    def track(self, timestamp: float, imgs: List[np.ndarray]):
 
         print(
             "\n[SLAM] {} - {}".format(self.state.name, self.data_manager.config.index)
@@ -99,15 +98,6 @@ class Tracker:
 
         # C++ sets descriptor dimensions to local mapper
 
-        # Process IMU:
-        self.data_manager.data.accumulated_imus.append(
-            IMU(
-                self.previous_timestamp,
-                timestamp,
-                accumulated_imu,
-                self.data_manager.config.index,
-            )
-        )
         # ===================================================================
 
         # TODO mutexing of map
@@ -120,7 +110,7 @@ class Tracker:
 
         elif self.state is State.INITIALIZING:
 
-            # TODO multiple frame initialization ...? Not with ground truth at least...
+            # TODO multiple frame initialization
             init_return = self.initialize()
             if init_return == 1:
                 self.state = State.RUNNING
@@ -131,7 +121,7 @@ class Tracker:
                 self.refMultiKeyframe = self.currentMultiframe
 
             elif init_return == 0:
-                #self.reset()
+                # self.reset()
                 return None
 
         elif self.state is State.RUNNING:
@@ -702,11 +692,6 @@ class Tracker:
                         "min_reproj_err": self.settings["init_min_reproj_err"],
                     },
                 )
-
-                print(matches)
-                print(uv_init)
-                print(uv_curr)
-                print(xyz_point)
 
                 camera = self.data_manager.config.cameras[cam]
 
